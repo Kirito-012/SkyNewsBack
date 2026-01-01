@@ -1,5 +1,11 @@
 const {s3, bucketName} = require('../config/aws')
-const sharp = require('sharp')
+let sharp
+try {
+	sharp = require('sharp')
+} catch (error) {
+	console.error('Failed to load sharp module:', error)
+	sharp = null
+}
 const {v4: uuidv4} = require('uuid')
 
 /**
@@ -14,14 +20,20 @@ const uploadToS3 = async (base64Image, folder = 'products') => {
 		const base64Data = base64Image.replace(/^data:image\/\w+;base64,/, '')
 		const imageBuffer = Buffer.from(base64Data, 'base64')
 
-		// Process image with Sharp (resize and optimize)
-		const processedImage = await sharp(imageBuffer)
-			.resize(1000, 1000, {
-				fit: 'inside',
-				withoutEnlargement: true,
-			})
-			.jpeg({quality: 80})
-			.toBuffer()
+		let processedImage
+		if (sharp) {
+			// Process image with Sharp (resize and optimize)
+			processedImage = await sharp(imageBuffer)
+				.resize(1000, 1000, {
+					fit: 'inside',
+					withoutEnlargement: true,
+				})
+				.jpeg({quality: 80})
+				.toBuffer()
+		} else {
+			console.warn('Sharp module not loaded, uploading original image')
+			processedImage = imageBuffer
+		}
 
 		// Generate unique filename
 		const timestamp = Date.now()
