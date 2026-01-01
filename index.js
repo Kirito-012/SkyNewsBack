@@ -65,9 +65,10 @@ if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (err) => {
-	console.log('Unhandled Rejection! Shutting down...')
+	console.log('Unhandled Rejection! Logging error...')
 	console.error(err.name, err.message)
-	process.exit(1)
+	// Do not exit process in serverless environment
+	// process.exit(1)
 })
 
 module.exports = app.callback()
