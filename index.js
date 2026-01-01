@@ -53,7 +53,9 @@ app.use(categoryRoutes.routes()).use(categoryRoutes.allowedMethods())
 // Server configuration
 const PORT = process.env.PORT || 3010
 
-if (process.env.NODE_ENV !== 'production' || !process.env.PORT) {
+// Only listen if not running in Vercel production environment
+// Vercel exports the app as a serverless function, so we shouldn't call listen() there
+if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
 	app.listen(PORT, () => {
 		console.log(`🚀 Server running on port ${PORT}`)
 		console.log(`🌍 Environment: ${process.env.NODE_ENV}`)
